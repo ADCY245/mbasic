@@ -33,10 +33,16 @@ function loadSizes() {
   if (!thickness) return;
 
   Promise.all([
-    fetch(`/chemicals-data/${thickness}.json`).then(res => res.json()),
-    fetch("/chemicals-data/price.json").then(res => res.json())
+    fetch(`/static/chemicals/${thickness}.json`).then(res => {
+      if (!res.ok) throw new Error("Thickness data not found");
+      return res.json();
+    }),
+    fetch("/static/chemicals/price.json").then(res => {
+      if (!res.ok) throw new Error("Price data not found");
+      return res.json();
+    })
   ])
-    .then(([sizesData, priceData]) => {
+  .then(([sizesData, priceData]) => {
     const sizeSelect = document.getElementById("sizeSelect");
     sizeSelect.innerHTML = '<option value="">-- Select Size --</option>';
 
@@ -58,6 +64,10 @@ function loadSizes() {
     });
 
     document.getElementById("sizeSection").style.display = "block";
+  })
+  .catch(err => {
+    console.error("Failed to load thickness or price JSON:", err);
+    alert("Could not load data for selected thickness.");
   });
 }
 
