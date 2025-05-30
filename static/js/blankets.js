@@ -2,7 +2,7 @@ let machineData = [], blanketData = [], barData = [], discountData = [], thickne
 let basePrice = 0, priceWithBar = 0, finalDiscountedPrice = 0;
 
 window.onload = () => {
-  fetch("machine.json")
+  fetch("/data/blankets/machine.json")
     .then(res => res.json())
     .then(data => {
       machineData = data.machines;
@@ -19,7 +19,7 @@ window.onload = () => {
       });
     });
 
-  fetch("blankets.json")
+  fetch("/data/blankets/blankets.json")
     .then(res => res.json())
     .then(data => {
       blanketData = data.products;
@@ -33,9 +33,15 @@ window.onload = () => {
       });
     });
 
-  fetch("bar.json").then(res => res.json()).then(data => barData = data.bars);
-  fetch("discount.json").then(res => res.json()).then(data => discountData = data.discounts);
-  fetch("thickness.json")
+  fetch("/data/blankets/bar.json")
+    .then(res => res.json())
+    .then(data => barData = data.bars);
+
+  fetch("/data/blankets/discount.json")
+    .then(res => res.json())
+    .then(data => discountData = data.discounts);
+
+  fetch("/data/blankets/thickness.json")
     .then(res => res.json())
     .then(data => {
       thicknessData = data.thicknesses;
@@ -54,13 +60,11 @@ window.onload = () => {
   document.getElementById("discountSelect").addEventListener("change", updatePrices);
   document.getElementById("gstSelect").addEventListener("change", applyGST);
 
-  // Apply Discount Button logic
   document.getElementById("applyDiscountBtn").addEventListener("click", () => {
     showDiscountSection();
     updatePrices();
   });
 
-  // Hide apply discount button initially
   document.getElementById("applyDiscountBtn").style.display = 'none';
 };
 
@@ -123,9 +127,7 @@ function calculatePrice() {
     document.getElementById("barRate").innerText = `Barring Price/pc: ₹${barRate.toFixed(2)}`;
     document.getElementById("netUnitPrice").innerText = `Net Price/Unit: ₹${priceWithBar.toFixed(2)}`;
 
-    // Show "Apply Discount" button instead of showing discount directly
     document.getElementById("applyDiscountBtn").style.display = 'block';
-
     updatePrices();
   };
 }
@@ -133,6 +135,7 @@ function calculatePrice() {
 function updatePrices() {
   const qty = parseInt(document.getElementById("quantityInput").value) || 0;
   const discountVal = document.getElementById("discountSelect").value;
+
   if (!priceWithBar || qty <= 0) {
     document.getElementById("totalNetPrice").innerText = "";
     document.getElementById("discountedPrice").innerText = "";
@@ -179,5 +182,5 @@ function showDiscountSection() {
     discountSelect.appendChild(opt);
   });
   document.getElementById("discountSection").style.display = 'block';
-  document.getElementById("applyDiscountBtn").style.display = 'none'; // hide the button once used
+  document.getElementById("applyDiscountBtn").style.display = 'none';
 }
