@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadMachines() {
-  fetch("/chemicals-data/machine.json")
+  fetch("/blankets-data/machine.json")
     .then(res => res.json())
     .then(data => {
       const machineSelect = document.getElementById("machineSelect");
@@ -35,7 +35,8 @@ function loadSizes() {
   Promise.all([
     fetch(`/chemicals-data/${thickness}.json`).then(res => res.json()),
     fetch("/chemicals-data/price.json").then(res => res.json())
-  ]).then(([sizesData, priceData]) => {
+  ])
+    .then(([sizesData, priceData]) => {
     const sizeSelect = document.getElementById("sizeSelect");
     sizeSelect.innerHTML = '<option value="">-- Select Size --</option>';
 
@@ -95,7 +96,8 @@ function showDiscountSection(apply) {
     return;
   }
 
-  fetch("/chemicals-data/discount.json")
+ 
+  fetch("/blankets-data/discount.json")
     .then(res => res.json())
     .then(data => {
       const select = document.getElementById("discountSelect");
