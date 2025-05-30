@@ -2,7 +2,7 @@ let machineData = [], blanketData = [], barData = [], discountData = [], thickne
 let basePrice = 0, priceWithBar = 0, finalDiscountedPrice = 0;
 
 window.onload = () => {
-  fetch("/data/blankets/machine.json")
+  fetch("/blankets-data/machine.json")
     .then(res => res.json())
     .then(data => {
       machineData = data.machines;
@@ -19,7 +19,7 @@ window.onload = () => {
       });
     });
 
-  fetch("/data/blankets/blankets.json")
+fetch("/blankets-data/blankets.json")
     .then(res => res.json())
     .then(data => {
       blanketData = data.products;
@@ -33,15 +33,16 @@ window.onload = () => {
       });
     });
 
-  fetch("/data/blankets/bar.json")
+  fetch("/blankets-data/bar.json")
     .then(res => res.json())
     .then(data => barData = data.bars);
 
-  fetch("/data/blankets/discount.json")
+
+  fetch("/blankets-data/discount.json")
     .then(res => res.json())
     .then(data => discountData = data.discounts);
 
-  fetch("/data/blankets/thickness.json")
+  fetch("/blankets-data/thickness.json")
     .then(res => res.json())
     .then(data => {
       thicknessData = data.thicknesses;
