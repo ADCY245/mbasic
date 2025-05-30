@@ -16,15 +16,15 @@ def blankets():
 def mpack():
     return render_template('products/chemicals/mpack.html')
 
-# Serve JSON for blankets
-@app.route('/blankets-data/<filename>')
-def serve_blanket_json(filename):
+# Serve JSON from /static/products/blankets/
+@app.route('/blankets-data/<path:filename>')
+def blankets_data(filename):
     return send_from_directory('static/products/blankets', filename)
 
-# Serve JSON for mpack (chemicals)
-@app.route('/chemicals-data/<filename>')
-def serve_chemical_json(filename):
-    return send_from_directory('static/products/chemicals', filename)
+# Serve JSON from /static/chemicals/
+@app.route('/chemicals-data/<path:filename>')
+def chemicals_data(filename):
+    return send_from_directory('static/chemicals', filename)
 
 if __name__ == "__main__":
-    serve(app, host='0.0.0.0', port=5000)
+    serve(app, host="0.0.0.0", port=8080)
