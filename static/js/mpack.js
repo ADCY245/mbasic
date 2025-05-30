@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadMachines() {
-  fetch("../chemicals/machine.json")
+  fetch("/chemicals-data/machine.json")
     .then(res => res.json())
     .then(data => {
       const machineSelect = document.getElementById("machineSelect");
@@ -33,8 +33,8 @@ function loadSizes() {
   if (!thickness) return;
 
   Promise.all([
-    fetch(`../chemicals/${thickness}.json`).then(res => res.json()),
-    fetch("../chemicals/price.json").then(res => res.json())
+    fetch(`/chemicals-data/${thickness}.json`).then(res => res.json()),
+    fetch("/chemicals-data/price.json").then(res => res.json())
   ]).then(([sizesData, priceData]) => {
     const sizeSelect = document.getElementById("sizeSelect");
     sizeSelect.innerHTML = '<option value="">-- Select Size --</option>';
@@ -50,7 +50,7 @@ function loadSizes() {
       const price = priceLookup[item.id] ?? 0;
       const opt = document.createElement("option");
       opt.value = item.id;
-      opt.textContent = `${item.width} x ${item.length} `;
+      opt.textContent = `${item.width} x ${item.length}`;
       sizeSelect.appendChild(opt);
 
       priceMap[item.id] = price;
@@ -95,13 +95,13 @@ function showDiscountSection(apply) {
     return;
   }
 
-  fetch("../chemicals/discount.json")
+  fetch("/chemicals-data/discount.json")
     .then(res => res.json())
     .then(data => {
       const select = document.getElementById("discountSelect");
       select.innerHTML = '<option value="">-- Select Discount --</option>';
       data.discounts.forEach(discountStr => {
-        const percent = parseFloat(discountStr); // Extract numeric value
+        const percent = parseFloat(discountStr);
         const opt = document.createElement("option");
         opt.value = percent;
         opt.textContent = discountStr;
@@ -120,3 +120,4 @@ function applyDiscount() {
 
   document.getElementById("finalDiscountedPrice").textContent = finalDiscounted.toFixed(2);
 }
+
