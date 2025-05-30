@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 from waitress import serve
 import os
 
@@ -15,6 +15,14 @@ def blankets():
 @app.route('/mpack')
 def mpack():
     return render_template('products/chemicals/mpack.html')
+
+@app.route('/data/blankets/<filename>')
+def serve_blanket_json(filename):
+    return send_from_directory('static/products/blankets', filename)
+
+@app.route('/data/chemicals/<filename>')
+def serve_chemical_json(filename):
+    return send_from_directory('static/products/chemicals', filename)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
