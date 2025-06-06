@@ -64,6 +64,7 @@ function loadSizes() {
     });
 
     document.getElementById("sizeSection").style.display = "block";
+    calculateFinalPrice();
   })
   .catch(err => {
     console.error("Failed to load thickness or price JSON:", err);
@@ -73,13 +74,31 @@ function loadSizes() {
 
 function handleSizeSelection() {
   const id = document.getElementById("sizeSelect").value;
-  if (!id) return;
+  if (!id) {
+  // Reset everything if no size is selected
+  currentNetPrice = 0;
+  document.getElementById("netPrice").textContent = "0.00";
+  document.getElementById("totalPrice").textContent = "0.00";
+  document.getElementById("gstAmount").textContent = "0.00";
+  document.getElementById("finalPrice").textContent = "0.00";
+  document.getElementById("finalDiscountedPrice").textContent = "0.00";
+
+  document.getElementById("priceSection").style.display = "none";
+  document.getElementById("sheetInputSection").style.display = "none";
+  document.getElementById("totalPriceSection").style.display = "none";
+  document.getElementById("discountPromptSection").style.display = "none";
+  document.getElementById("discountSection").style.display = "none";
+  document.getElementById("addToCartBtn").style.display = "none";
+  return;
+}
+;
 
   const price = priceMap[id];
   currentNetPrice = price;
   document.getElementById("netPrice").textContent = price.toFixed(2);
   document.getElementById("priceSection").style.display = "block";
   document.getElementById("sheetInputSection").style.display = "block";
+ calculateFinalPrice();
 }
 
 function calculateFinalPrice() {
@@ -97,6 +116,8 @@ function calculateFinalPrice() {
   document.getElementById("totalPriceSection").style.display = "block";
   document.getElementById("discountPromptSection").style.display = "block";
   document.getElementById("addToCartBtn").style.display = "block";
+const discountValue = document.getElementById("discountSelect").value;
+  if (discountValue) applyDiscount();
 }
 
 function showDiscountSection(apply) {
