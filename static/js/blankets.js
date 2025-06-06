@@ -51,7 +51,7 @@ window.onload = () => {
         barSelect.appendChild(opt);
       });
 
-      // ✅ Set onchange handler once
+      // ✅ FIXED: Update discounted/final prices on bar change
       barSelect.onchange = () => {
         const barRate = parseFloat(barSelect.value || 0);
         priceWithBar = basePrice + barRate;
@@ -60,9 +60,9 @@ window.onload = () => {
         document.getElementById("netUnitPrice").innerText = `Net Price/Unit: ₹${priceWithBar.toFixed(2)}`;
 
         document.getElementById("applyDiscountBtn").style.display = 'block';
-        
-        // ✅ FIX: Also update discounted and final price
-        updatePrices();
+
+        const qty = parseInt(document.getElementById("quantityInput").value);
+        if (qty > 0) updatePrices();
       };
     });
 
@@ -144,7 +144,6 @@ function calculatePrice() {
   document.getElementById("calculatedArea").innerText = `Area: ${areaSqM.toFixed(3)} sq.m / ${areaSqYd.toFixed(3)} sq.yd`;
   document.getElementById("basePrice").innerText = `Base Price: ₹${basePrice.toFixed(2)}`;
 
-  // Recalculate bar + base if bar already selected
   const barRate = parseFloat(document.getElementById("barSelect").value || 0);
   priceWithBar = basePrice + barRate;
 
