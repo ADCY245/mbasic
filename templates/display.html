@@ -10,8 +10,9 @@
     />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
     <script src="{{ url_for('static', filename='js/selection.js') }}"></script>
-      <a href="{{ url_for('cart') }}" style="position: absolute; top: 10px; right: 10px;">
-  <img src="cart-icon.png" alt="Cart" width="32">
+      <a href="{{ url_for('cart') }}">
+  <img src="{{ url_for('static', filename='images/cart-icon.png') }}" alt="Cart" style="width: 40px; height: 40px; float: right; margin: 10px;" />
+</a>
 </head>
 
 
