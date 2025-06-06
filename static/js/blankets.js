@@ -52,6 +52,7 @@ window.onload = () => {
       });
 
       barSelect.onchange = () => {
+          calculatePrice(); 
         const barRate = parseFloat(barSelect.value || 0);
         priceWithBar = basePrice + barRate;
 
