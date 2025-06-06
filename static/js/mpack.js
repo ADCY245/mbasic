@@ -33,11 +33,11 @@ function loadSizes() {
   if (!thickness) return;
 
   Promise.all([
-    fetch(`/static/chemicals/${thickness}.json`).then(res => {
+    fetch(`/static/products/chemical/${thickness}.json`).then(res => {
       if (!res.ok) throw new Error("Thickness data not found");
       return res.json();
     }),
-    `/static/chemicals/${price}.json`
+    fetch(`/static/products/chemical/price.json`).then(res => {
       if (!res.ok) throw new Error("Price data not found");
       return res.json();
     })
@@ -106,7 +106,6 @@ function showDiscountSection(apply) {
     return;
   }
 
- 
   fetch("/blankets-data/discount.json")
     .then(res => res.json())
     .then(data => {
@@ -132,4 +131,3 @@ function applyDiscount() {
 
   document.getElementById("finalDiscountedPrice").textContent = finalDiscounted.toFixed(2);
 }
-
