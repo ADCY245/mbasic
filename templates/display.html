@@ -15,14 +15,15 @@
 </head>
 
 <body>
+  <div class="container">
+    <h1 class="mb-4">Select Product Type</h1>
 
-  <h1>Select Product Type</h1>
-
-  <select id="productTypeSelect">
-    <option value="">-- Select Type --</option>
-    <option value="{{ url_for('blankets') }}">Blanket</option>
-    <option value="{{ url_for('mpack') }}">Underpacking</option>
-  </select>
-
+    <div class="mb-3">
+      <select id="productTypeSelect" class="form-select">
+        <option value="">-- Select Type --</option>
+        <option value="{{ url_for('blankets') }}">Blanket</option>
+        <option value="{{ url_for('mpack') }}">Underpacking</option>
+      </select>
+    </div>
+  </div>
 </body>
-</html>
