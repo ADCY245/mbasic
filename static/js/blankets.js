@@ -51,20 +51,18 @@ window.onload = () => {
         barSelect.appendChild(opt);
       });
 
- barSelect.onchange = () => {
-  const barRate = parseFloat(barSelect.value || 0);
-  priceWithBar = basePrice + barRate;
+      barSelect.onchange = () => {
+        const barRate = parseFloat(barSelect.value || 0);
+        priceWithBar = basePrice + barRate;
 
-  document.getElementById("barRate").innerText = `Barring Price/pc: ₹${barRate.toFixed(2)}`;
-  document.getElementById("netUnitPrice").innerText = `Net Price/Unit: ₹${priceWithBar.toFixed(2)}`;
+        document.getElementById("barRate").innerText = `Barring Price/pc: ₹${barRate.toFixed(2)}`;
+        document.getElementById("netUnitPrice").innerText = `Net Price/Unit: ₹${priceWithBar.toFixed(2)}`;
 
-  document.getElementById("applyDiscountBtn").style.display = 'block';
+        document.getElementById("applyDiscountBtn").style.display = 'block';
 
-  // ✅ Ensure total prices, discounts, and GST are updated when bar changes
-  updatePrices();
-  applyGST();
-};
-
+        updatePrices();
+        applyGST();
+      };
     });
 
   fetch("/blankets-data/discount.json")
