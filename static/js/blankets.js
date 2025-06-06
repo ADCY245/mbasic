@@ -60,7 +60,9 @@ window.onload = () => {
         document.getElementById("netUnitPrice").innerText = `Net Price/Unit: ₹${priceWithBar.toFixed(2)}`;
 
         document.getElementById("applyDiscountBtn").style.display = 'block';
-        calculatePrice(); // This will also call updatePrices()
+        
+        // ✅ FIX: Also update discounted and final price
+        updatePrices();
       };
     });
 
