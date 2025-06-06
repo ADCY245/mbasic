@@ -19,7 +19,7 @@ window.onload = () => {
       });
     });
 
-fetch("/blankets-data/blankets.json")
+  fetch("/blankets-data/blankets.json")
     .then(res => res.json())
     .then(data => {
       blanketData = data.products;
@@ -31,12 +31,17 @@ fetch("/blankets-data/blankets.json")
         opt.text = blanket.name;
         blanketSelect.appendChild(opt);
       });
+
+      // When blanket changes, update rates and price
+      blanketSelect.addEventListener("change", () => {
+        displayRates();
+        calculatePrice();
+      });
     });
 
   fetch("/blankets-data/bar.json")
     .then(res => res.json())
     .then(data => barData = data.bars);
-
 
   fetch("/blankets-data/discount.json")
     .then(res => res.json())
@@ -56,7 +61,11 @@ fetch("/blankets-data/blankets.json")
       });
     });
 
-  document.getElementById("blanketSelect").addEventListener("change", displayRates);
+  // Input listeners
+  document.getElementById("lengthInput").addEventListener("input", calculatePrice);
+  document.getElementById("widthInput").addEventListener("input", calculatePrice);
+  document.getElementById("unitSelect").addEventListener("change", calculatePrice);
+  document.getElementById("thicknessSelect").addEventListener("change", calculatePrice);
   document.getElementById("quantityInput").addEventListener("input", updatePrices);
   document.getElementById("discountSelect").addEventListener("change", updatePrices);
   document.getElementById("gstSelect").addEventListener("change", applyGST);
@@ -98,7 +107,8 @@ function calculatePrice() {
   const product = blanketData.find(p => p.id == document.getElementById("blanketSelect").value);
 
   if (!lengthInput || !widthInput || !thickness || !product) {
-    alert("Please fill all fields properly.");
+    document.getElementById("calculatedArea").innerText = '';
+    document.getElementById("basePrice").innerText = '';
     return;
   }
 
@@ -121,6 +131,7 @@ function calculatePrice() {
     barSelect.appendChild(opt);
   });
 
+  // Trigger update on bar change
   barSelect.onchange = () => {
     const barRate = parseFloat(barSelect.value || 0);
     priceWithBar = basePrice + barRate;
@@ -131,6 +142,19 @@ function calculatePrice() {
     document.getElementById("applyDiscountBtn").style.display = 'block';
     updatePrices();
   };
+
+  // Auto-trigger barSelect if already selected
+  const currentBarRate = parseFloat(barSelect.value || 0);
+  priceWithBar = basePrice + currentBarRate;
+
+  document.getElementById("barRate").innerText = currentBarRate
+    ? `Barring Price/pc: ₹${currentBarRate.toFixed(2)}`
+    : '';
+  document.getElementById("netUnitPrice").innerText = currentBarRate
+    ? `Net Price/Unit: ₹${priceWithBar.toFixed(2)}`
+    : '';
+
+  updatePrices();
 }
 
 function updatePrices() {
@@ -185,3 +209,4 @@ function showDiscountSection() {
   document.getElementById("discountSection").style.display = 'block';
   document.getElementById("applyDiscountBtn").style.display = 'none';
 }
+
