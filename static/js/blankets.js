@@ -51,8 +51,8 @@ window.onload = () => {
         barSelect.appendChild(opt);
       });
 
-      // Attach change event once
-      barSelect.addEventListener("change", () => {
+      // ✅ Set onchange handler once
+      barSelect.onchange = () => {
         const barRate = parseFloat(barSelect.value || 0);
         priceWithBar = basePrice + barRate;
 
@@ -61,7 +61,7 @@ window.onload = () => {
 
         document.getElementById("applyDiscountBtn").style.display = 'block';
         updatePrices();
-      });
+      };
     });
 
   fetch("/blankets-data/discount.json")
@@ -82,7 +82,6 @@ window.onload = () => {
       });
     });
 
-  // Input listeners
   document.getElementById("lengthInput").addEventListener("input", calculatePrice);
   document.getElementById("widthInput").addEventListener("input", calculatePrice);
   document.getElementById("unitSelect").addEventListener("change", calculatePrice);
@@ -143,6 +142,7 @@ function calculatePrice() {
   document.getElementById("calculatedArea").innerText = `Area: ${areaSqM.toFixed(3)} sq.m / ${areaSqYd.toFixed(3)} sq.yd`;
   document.getElementById("basePrice").innerText = `Base Price: ₹${basePrice.toFixed(2)}`;
 
+  // Recalculate bar + base if bar already selected
   const barRate = parseFloat(document.getElementById("barSelect").value || 0);
   priceWithBar = basePrice + barRate;
 
