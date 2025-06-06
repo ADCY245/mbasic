@@ -32,7 +32,6 @@ window.onload = () => {
         blanketSelect.appendChild(opt);
       });
 
-      // When blanket changes, update rates and price
       blanketSelect.addEventListener("change", () => {
         displayRates();
         calculatePrice();
@@ -41,7 +40,29 @@ window.onload = () => {
 
   fetch("/blankets-data/bar.json")
     .then(res => res.json())
-    .then(data => barData = data.bars);
+    .then(data => {
+      barData = data.bars;
+      const barSelect = document.getElementById("barSelect");
+      barSelect.innerHTML = '<option value="">--Select--</option>';
+      barData.forEach(bar => {
+        const opt = document.createElement("option");
+        opt.value = bar.barRate;
+        opt.text = bar.bar;
+        barSelect.appendChild(opt);
+      });
+
+      // Attach change event once
+      barSelect.addEventListener("change", () => {
+        const barRate = parseFloat(barSelect.value || 0);
+        priceWithBar = basePrice + barRate;
+
+        document.getElementById("barRate").innerText = `Barring Price/pc: ₹${barRate.toFixed(2)}`;
+        document.getElementById("netUnitPrice").innerText = `Net Price/Unit: ₹${priceWithBar.toFixed(2)}`;
+
+        document.getElementById("applyDiscountBtn").style.display = 'block';
+        updatePrices();
+      });
+    });
 
   fetch("/blankets-data/discount.json")
     .then(res => res.json())
@@ -122,35 +143,13 @@ function calculatePrice() {
   document.getElementById("calculatedArea").innerText = `Area: ${areaSqM.toFixed(3)} sq.m / ${areaSqYd.toFixed(3)} sq.yd`;
   document.getElementById("basePrice").innerText = `Base Price: ₹${basePrice.toFixed(2)}`;
 
-  const barSelect = document.getElementById("barSelect");
-  barSelect.innerHTML = '<option value="">--Select--</option>';
-  barData.forEach(bar => {
-    const opt = document.createElement("option");
-    opt.value = bar.barRate;
-    opt.text = bar.bar;
-    barSelect.appendChild(opt);
-  });
+  const barRate = parseFloat(document.getElementById("barSelect").value || 0);
+  priceWithBar = basePrice + barRate;
 
-  // Trigger update on bar change
-  barSelect.onchange = () => {
-    const barRate = parseFloat(barSelect.value || 0);
-    priceWithBar = basePrice + barRate;
-
-    document.getElementById("barRate").innerText = `Barring Price/pc: ₹${barRate.toFixed(2)}`;
-    document.getElementById("netUnitPrice").innerText = `Net Price/Unit: ₹${priceWithBar.toFixed(2)}`;
-
-    document.getElementById("applyDiscountBtn").style.display = 'block';
-    updatePrices();
-  };
-
-  // Auto-trigger barSelect if already selected
-  const currentBarRate = parseFloat(barSelect.value || 0);
-  priceWithBar = basePrice + currentBarRate;
-
-  document.getElementById("barRate").innerText = currentBarRate
-    ? `Barring Price/pc: ₹${currentBarRate.toFixed(2)}`
+  document.getElementById("barRate").innerText = barRate
+    ? `Barring Price/pc: ₹${barRate.toFixed(2)}`
     : '';
-  document.getElementById("netUnitPrice").innerText = currentBarRate
+  document.getElementById("netUnitPrice").innerText = barRate
     ? `Net Price/Unit: ₹${priceWithBar.toFixed(2)}`
     : '';
 
@@ -209,4 +208,3 @@ function showDiscountSection() {
   document.getElementById("discountSection").style.display = 'block';
   document.getElementById("applyDiscountBtn").style.display = 'none';
 }
-
