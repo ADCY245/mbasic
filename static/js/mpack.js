@@ -37,7 +37,7 @@ function loadSizes() {
       if (!res.ok) throw new Error("Thickness data not found");
       return res.json();
     }),
-    fetch("/static/chemicals/price.json").then(res => {
+    `/static/chemicals/${price}.json`
       if (!res.ok) throw new Error("Price data not found");
       return res.json();
     })
