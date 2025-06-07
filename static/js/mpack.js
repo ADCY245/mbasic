@@ -115,21 +115,31 @@ function calculateFinalPrice() {
   document.getElementById("totalPrice").textContent = total.toFixed(2);
   document.getElementById("gstAmount").textContent = gst.toFixed(2);
   document.getElementById("finalPrice").textContent = final.toFixed(2);
+  document.getElementById("finalDiscountedPrice").textContent = final.toFixed(2);
 
   document.getElementById("totalPriceSection").style.display = "block";
   document.getElementById("discountPromptSection").style.display = "block";
   document.getElementById("addToCartBtn").style.display = "block";
-  const discountValue = document.getElementById("discountSelect").value;
-  if (discountValue) applyDiscount();
+
+  // Update discount if selected
+  const discountSelect = document.getElementById("discountSelect");
+  if (discountSelect.value) {
+    applyDiscount();
+  }
 }
 
 function showDiscountSection(apply) {
+  const discountSection = document.getElementById("discountSection");
+  const finalPrice = document.getElementById("finalPrice").textContent;
+  const finalDiscountedPrice = document.getElementById("finalDiscountedPrice");
+
   if (!apply) {
-    document.getElementById("discountSection").style.display = "none";
-    document.getElementById("finalDiscountedPrice").textContent = document.getElementById("finalPrice").textContent;
+    discountSection.style.display = "none";
+    finalDiscountedPrice.textContent = finalPrice;
     return;
   }
 
+  // Load discount options
   fetch("/blankets-data/discount.json")
     .then(res => res.json())
     .then(data => {
@@ -142,8 +152,8 @@ function showDiscountSection(apply) {
         opt.textContent = discountStr;
         select.appendChild(opt);
       });
-
-      document.getElementById("discountSection").style.display = "block";
+      discountSection.style.display = "block";
+      finalDiscountedPrice.textContent = finalPrice;
     });
 }
 
