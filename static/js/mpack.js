@@ -11,8 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("thicknessSelect").addEventListener("change", loadSizes);
   document.getElementById("sizeSelect").addEventListener("change", handleSizeSelection);
   document.getElementById("sheetInput").addEventListener("input", calculateFinalPrice);
-  document.getElementById("discountSelect").addEventListener("change", calculateFinalPrice);
-
+  document.getElementById("discountSelect").addEventListener("change", applyDiscount);
 });
 
 function loadMachines() {
@@ -34,11 +33,11 @@ function loadSizes() {
   if (!thickness) return;
 
   Promise.all([
-    fetch(`/static/products/chemical/${thickness}.json`).then(res => {
+    fetch(/static/products/chemical/${thickness}.json).then(res => {
       if (!res.ok) throw new Error("Thickness data not found");
       return res.json();
     }),
-    fetch(`/static/products/chemical/price.json`).then(res => {
+    fetch(/static/products/chemical/price.json).then(res => {
       if (!res.ok) throw new Error("Price data not found");
       return res.json();
     })
@@ -58,7 +57,7 @@ function loadSizes() {
       const price = priceLookup[item.id] ?? 0;
       const opt = document.createElement("option");
       opt.value = item.id;
-      opt.textContent = `${item.width} x ${item.length}`;
+      opt.textContent = ${item.width} x ${item.length};
       sizeSelect.appendChild(opt);
 
       priceMap[item.id] = price;
@@ -104,33 +103,19 @@ function handleSizeSelection() {
 
 function calculateFinalPrice() {
   const quantity = parseInt(document.getElementById("sheetInput").value);
-  const discountPercent = parseFloat(document.getElementById("discountSelect").value || 0);
-
-  if (!quantity || quantity <= 0 || !currentNetPrice) {
-    document.getElementById("totalPrice").textContent = "0.00";
-    document.getElementById("gstAmount").textContent = "0.00";
-    document.getElementById("finalPrice").textContent = "0.00";
-    document.getElementById("finalDiscountedPrice").textContent = "0.00";
-    return;
-  }
+  if (!quantity || quantity <= 0) return;
 
   const total = currentNetPrice * quantity;
   const gst = total * 0.12;
   const final = total + gst;
 
-  const discountedAmount = final * (discountPercent / 100);
-  const finalDiscounted = final - discountedAmount;
-
   document.getElementById("totalPrice").textContent = total.toFixed(2);
   document.getElementById("gstAmount").textContent = gst.toFixed(2);
   document.getElementById("finalPrice").textContent = final.toFixed(2);
-  document.getElementById("finalDiscountedPrice").textContent = finalDiscounted.toFixed(2);
 
   document.getElementById("totalPriceSection").style.display = "block";
   document.getElementById("discountPromptSection").style.display = "block";
   document.getElementById("addToCartBtn").style.display = "block";
-}
-
 const discountValue = document.getElementById("discountSelect").value;
   if (discountValue) applyDiscount();
 }
@@ -159,14 +144,14 @@ function showDiscountSection(apply) {
     });
 }
 
-//function applyDiscount() {
- // const discountPercent = parseFloat(document.getElementById("discountSelect").value);
-//  const finalBeforeDiscount = parseFloat(document.getElementById("finalPrice").textContent);
-//  const discountedAmount = finalBeforeDiscount * (discountPercent / 100);
- // const finalDiscounted = finalBeforeDiscount - discountedAmount;
+function applyDiscount() {
+  const discountPercent = parseFloat(document.getElementById("discountSelect").value);
+  const finalBeforeDiscount = parseFloat(document.getElementById("finalPrice").textContent);
+  const discountedAmount = finalBeforeDiscount * (discountPercent / 100);
+  const finalDiscounted = finalBeforeDiscount - discountedAmount;
 
-//  document.getElementById("finalDiscountedPrice").textContent = finalDiscounted.toFixed(2);
-//}
+  document.getElementById("finalDiscountedPrice").textContent = finalDiscounted.toFixed(2);
+}
 
 function addMpackToCart() {
   const product = {
