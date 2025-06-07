@@ -51,20 +51,24 @@ def save_cart(cart):
     with open(CART_FILE, 'w') as f:
         json.dump(cart, f, indent=2)
 
+from flask import request, jsonify
+
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
-    product = request.json  # expects keys: name, id, quantity, total_price, redirect_route
-    cart = load_cart()
+    if request.is_json:
+        product = request.get_json()
+        cart = load_cart()
 
-    for item in cart['products']:
-        if item['id'] == product['id']:
-            item.update(product)
-            break
-    else:
+        # Check if the cart has space
         if len(cart['products']) < 20:
+            # Add the new product
             cart['products'].append(product)
-    save_cart(cart)
-    return jsonify(success=True)
+            save_cart(cart)
+            return jsonify({"success": True, "message": "Product added to cart."}), 201
+        else:
+            return jsonify({"success": False, "message": "Cart is full."}), 400
+    else:
+        return jsonify({"success": False, "message": "Invalid JSON."}), 400
 
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
