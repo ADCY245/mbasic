@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +27,18 @@
   <!-- Custom JS (loaded at end of body) -->
 </head>
 <body class="container py-4">
+
+  <!-- Cart icon top right -->
+  <div style="text-align: right; margin-bottom: 20px;">
+    <a href="{{ url_for('cart') }}">
+      <img
+        src="{{ url_for('static', filename='images/cart-icon.png') }}"
+        alt="Cart"
+        style="width: 40px; height: 40px; cursor: pointer;"
+      />
+    </a>
+  </div>
+
   <h2>Blanket Selection</h2>
 
   <div class="mb-3">
