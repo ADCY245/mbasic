@@ -1,106 +1,67 @@
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, flash
-from waitress import serve
 import os
-import json
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__, static_folder='static', template_folder='templates')
-app.secret_key = 'your-secret-key'  # Needed for flash messages
+app = Flask(__name__)
 
-CART_FILE = os.path.join('static', 'data', 'carts.json')
+# Use DATABASE_URL if set (Render/Heroku), else fallback to SQLite for local dev
+db_url = os.environ.get('DATABASE_URL')
+if db_url:
+    # Render/Heroku use 'postgres://', SQLAlchemy needs 'postgresql://'
+    db_url = db_url.replace('postgres://', 'postgresql://')
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cart.db'
 
-# ---------- ROUTES ---------- #
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-@app.route('/')
-def home():
-    return render_template('display.html')
+class CartItem(db.Model):
+    id = db.Column(db.String, primary_key=True)
+    category = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    final_price = db.Column(db.Float, nullable=False)
 
-@app.route('/blankets')
-def blankets():
-    return render_template('products/blankets/blankets.html')
-
-@app.route('/mpack')
-def mpack():
-    return render_template('products/chemicals/mpack.html')
-
-@app.route('/cart')
-def cart():
-    cart_data = load_cart()
-    total_price = sum(item['total_price'] for item in cart_data.get('products', []))
-    return render_template('cart.html', cart=cart_data, total=total_price)
-
-# ---------- STATIC FILE SERVING ---------- #
-
-@app.route('/blankets-data/<path:filename>')
-def blankets_data(filename):
-    return send_from_directory('static/products/blankets', filename)
-
-@app.route('/chemicals-data/<path:filename>')
-def chemicals_data(filename):
-    return send_from_directory('static/chemicals', filename)
-
-# ---------- CART HANDLING ---------- #
-
-def load_cart():
-    if not os.path.exists(CART_FILE):
-        return {"products": []}
-    with open(CART_FILE, 'r') as f:
-        return json.load(f)
-
-def save_cart(cart):
-    os.makedirs(os.path.dirname(CART_FILE), exist_ok=True)
-    with open(CART_FILE, 'w') as f:
-        json.dump(cart, f, indent=2)
-
-from flask import request, jsonify
+with app.app_context():
+    db.create_all()
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     try:
         data = request.get_json()
-        
-        # Simplify the cart item to only include essential fields
-        cart_item = {
-            'id': data.get('id', f'item_{int(time.time())}'),
-            'category': data['category'],
-            'name': data['name'],
-            'quantity': data['quantity'],
-            'final_price': data['final_price']
-        }
-
-        cart = []
-        if os.path.exists('carts.json'):
-            with open('carts.json', 'r') as f:
-                cart = json.load(f)
-        
-        # Check if item already exists in cart
-        existing_item = None
-        for item in cart:
-            if item['id'] == cart_item['id']:
-                existing_item = item
-                break
-
-        if existing_item:
-            existing_item['quantity'] += cart_item['quantity']
-            existing_item['final_price'] = cart_item['final_price']
+        item = CartItem.query.get(data['id'])
+        if item:
+            item.quantity += data['quantity']
+            item.final_price = data['final_price']
         else:
-            cart.append(cart_item)
-
-        with open('carts.json', 'w') as f:
-            json.dump(cart, f, indent=2)
-
+            item = CartItem(
+                id=data['id'],
+                category=data['category'],
+                name=data['name'],
+                quantity=data['quantity'],
+                final_price=data['final_price']
+            )
+            db.session.add(item)
+        db.session.commit()
         return jsonify({'success': True})
     except Exception as e:
         print(f"Error adding to cart: {str(e)}")
+        db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/get_cart', methods=['GET'])
 def get_cart():
     try:
-        if os.path.exists('carts.json'):
-            with open('carts.json', 'r') as f:
-                cart = json.load(f)
-            return jsonify({'success': True, 'cart': cart})
-        return jsonify({'success': True, 'cart': []})
+        items = CartItem.query.all()
+        cart = [{
+            'id': i.id,
+            'category': i.category,
+            'name': i.name,
+            'quantity': i.quantity,
+            'final_price': i.final_price
+        } for i in items]
+        return jsonify({'success': True, 'cart': cart})
     except Exception as e:
         print(f"Error getting cart: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -109,41 +70,31 @@ def get_cart():
 def remove_from_cart():
     try:
         data = request.get_json()
-        product_id = data['id']
-        
-        if not os.path.exists('carts.json'):
-            return jsonify({'success': False, 'message': 'Cart is empty'}), 404
-            
-        with open('carts.json', 'r') as f:
-            cart = json.load(f)
-        
-        # Remove item
-        cart = [item for item in cart if item['id'] != product_id]
-        
-        with open('carts.json', 'w') as f:
-            json.dump(cart, f, indent=2)
-        
-        return jsonify({'success': True})
+        item = CartItem.query.get(data['id'])
+        if item:
+            db.session.delete(item)
+            db.session.commit()
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'message': 'Item not found'}), 404
     except Exception as e:
         print(f"Error removing from cart: {str(e)}")
+        db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
-    cart['products'] = [item for item in cart['products'] if item['id'] != product_id]
-    save_cart(cart)
-    return redirect(url_for('cart'))
 
 @app.route('/send-quote', methods=['POST'])
 def send_quote():
     try:
-        # Clear the cart
-        if os.path.exists('carts.json'):
-            os.remove('carts.json')
-        
-        return jsonify({'success': True, 'message': 'Quote sent successfully'})
+        num_deleted = CartItem.query.delete()
+        db.session.commit()
+        # You can add email sending logic here if needed
+        return jsonify({'success': True, 'deleted': num_deleted})
     except Exception as e:
         print(f"Error sending quote: {str(e)}")
+        db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# ---------- START APP ---------- #
+# Add any other routes or logic you need below
 
-if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=8080)
+if __name__ == '__main__':
+    app.run(debug=True)
