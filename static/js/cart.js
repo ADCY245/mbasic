@@ -107,48 +107,26 @@ function removeFromCart(productId) {
     console.error('Error:', error);
     showToast('Failed to remove item', false);
   });
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-  cart = cart.filter(item => item.id !== productId);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  loadCart();
-  showCartMessage("Item removed from cart", true);
 }
 
 // Send quote functionality
 function sendQuote() {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  if (cart.length === 0) {
-    showCartMessage("Cart is empty. Please add items to cart first.", false);
-    return;
-  }
-
-  // Create quote data
-  const quoteData = {
-    items: cart,
-    subtotal: cart.reduce((sum, item) => sum + item.total_price, 0),
-    timestamp: new Date().toISOString()
-  };
-
-  // Send to server (implement your backend endpoint)
   fetch('/send-quote', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(quoteData)
+    method: 'POST'
   })
   .then(res => res.json())
   .then(data => {
     if (data.success) {
-      showCartMessage('Quote sent successfully!', true);
-      // Clear cart after successful quote
-      localStorage.removeItem('cart');
+      showToast('Quote sent successfully!', true);
+      // Reload cart after sending quote
       loadCart();
     } else {
-      showCartMessage('Failed to send quote. Please try again.', false);
+      showToast('Failed to send quote. Please try again.', false);
     }
   })
   .catch(error => {
-    console.error('Error:', error);
-    showCartMessage('Failed to send quote. Please try again.', false);
+    console.error('Error sending quote:', error);
+    showToast('Failed to send quote. Please try again.', false);
   });
 }
 
