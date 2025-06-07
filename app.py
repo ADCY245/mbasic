@@ -1,13 +1,12 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Use DATABASE_URL if set (Render/Heroku), else fallback to SQLite for local dev
+# Use PostgreSQL on Render, SQLite locally
 db_url = os.environ.get('DATABASE_URL')
 if db_url:
-    # Render/Heroku use 'postgres://', SQLAlchemy needs 'postgresql://'
     db_url = db_url.replace('postgres://', 'postgresql://')
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
@@ -25,6 +24,15 @@ class CartItem(db.Model):
 
 with app.app_context():
     db.create_all()
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/cart')
+def cart_page():
+    # The JS will fetch cart data, so we just render the template
+    return render_template('cart.html', cart=[])
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -87,14 +95,14 @@ def send_quote():
     try:
         num_deleted = CartItem.query.delete()
         db.session.commit()
-        # You can add email sending logic here if needed
+        # Add logic to send email/quote if needed here
         return jsonify({'success': True, 'deleted': num_deleted})
     except Exception as e:
         print(f"Error sending quote: {str(e)}")
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# Add any other routes or logic you need below
-
-if __name__ == '__main__':
+# ---------- START APP ---------- #
+if __name__ == "__main__":
+    # For production use gunicorn/waitress, for dev use Flask's server
     app.run(debug=True)
