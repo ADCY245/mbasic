@@ -17,6 +17,16 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}">
 </head>
 <body class="container py-4">
+  <div style="text-align: right; margin-bottom: 20px;">
+    <a href="{{ url_for('cart') }}">
+      <img
+        src="{{ url_for('static', filename='images/cart-icon.png') }}"
+        alt="Cart"
+        style="width: 40px; height: 40px; cursor: pointer;"
+      />
+    </a>
+  </div>
+
   <h2>MPACK Selection</h2>
 
   <!-- Machine Selector -->
