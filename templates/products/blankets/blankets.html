@@ -137,17 +137,21 @@
       <p id="finalPrice" class="bold"></p>
     </div>
 
-<button class="btn btn-primary" onclick="addToCart({
-  id: 'product1',
-  name: 'Sample Blanket',
-  quantity: 1,
-  total_price: 200,
-  redirect_route: 'blankets'
-})">Add to Cart</button>
+    <!-- ✅ ADD TO CART BUTTON -->
+    <button class="btn btn-primary" onclick="addToCart({
+      id: 'product1',
+      name: 'Sample Blanket',
+      quantity: 1,
+      total_price: 200,
+      redirect_route: 'blankets'
+    })">Add to Cart</button>
 
-<div id="cart-message" class="mt-2"></div>
+    <div id="cart-message" class="mt-2"></div>
 
-  <!-- Script -->
+  </div>
+
+  <!-- Scripts -->
   <script src="{{ url_for('static', filename='js/blankets.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
 </body>
 </html>
